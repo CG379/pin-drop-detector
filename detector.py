@@ -80,6 +80,7 @@ running = True
 
 def record_manual_input():
     global running
+
     print("Press and hold SPACEBAR to mark object present (1s resolution). Press ESC to stop.")
     last_timestamp = int(time.time())
 
@@ -106,6 +107,7 @@ def record_manual_input():
 # Somehow include actual values so we can do confusion matrix (true positive, false positive, true negative, false negative)
 
 def main():
+    global running
     data = []
     # Read data from the serial port
     # TODO: get Dennis to explain what this is for
@@ -135,21 +137,21 @@ def main():
         print("Interrupted by user.")
     except Exception as e:
         print(f"Error: {e}")
-    finally:
-        running = False
-        input_thread.join()
-        serial_conn.disconnect()
-        # Save sensor data
-        with open("sensor_data.csv", "w") as f:
-            for timestamp, value in data:
-                f.write(f"{timestamp},{value}\n")
-        print("Sensor data saved")
+    
+    running = False
+    input_thread.join()
+    serial_conn.disconnect()
+    # Save sensor data
+    with open("./sensor_data.csv", "w") as f:
+        for timestamp, value in data:
+            f.write(f"{timestamp},{value}\n")
+    print("Sensor data saved")
 
-        # Save True data
-        with open("true_data.csv", "w") as f:
-            for timestamp, value in manual_data:
-                f.write(f"{timestamp},{value}\n")
-        print("True data saved")
+    # Save True data
+    with open("./true_data.csv", "w") as f:
+        for timestamp, value in manual_data:
+            f.write(f"{timestamp},{value}\n")
+    print("True data saved")
 
 
 if __name__ == "__main__":
