@@ -124,6 +124,8 @@ def main():
         while running:
             line = serialInst.readline().decode('utf-8').strip()
             if line:
+                # Assuming the line is in the format "timestamp,value"
+                # e.g., "1234567890,1"
                 timestamp, value = line.split(",")
                 data.append((float(timestamp), int(value)))
                 if value == "1":
