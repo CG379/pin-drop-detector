@@ -127,11 +127,7 @@ def main():
                 timestamp, value = line.split(",")
                 data.append((float(timestamp), int(value)))
                 if value == "1":
-                    print("Detection: Object detected!")
-                elif value == "0":
-                    print("Detection: No object detected.")
-                else:
-                    print(f"Unknown value: {value}")
+                    print("Detection: Vibration detected!")
     except KeyboardInterrupt:
         running = False
         print("Interrupted by user.")
