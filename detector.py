@@ -5,6 +5,8 @@ import threading
 import time
 import keyboard  
 
+# BRUH 1 Changes:
+
 class SerialConnection:
     def __init__(self, baudrate=115200):
         self.serialInst = serial.Serial()
