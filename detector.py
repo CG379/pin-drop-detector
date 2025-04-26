@@ -124,7 +124,7 @@ def main():
     while True:
         if serialInst.in_waiting:
             line = serialInst.readline().decode('utf-8').strip()
-            if line == "START":
+            if line == "ARMED":
                 print("STM32 started. Beginning data collection.")
                 break
 
