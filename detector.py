@@ -118,7 +118,7 @@ def main():
     # Signal STM32 to prepare
     serialInst.write("SX".encode('utf-8'))
     serialInst.flush()
-    print("Waiting for STM32 to start (press the button)...")
+    print("Waiting for STM32 to be ARMED (press the button)...")
 
     # Wait for the STM32 to send "START"
     while True:
@@ -146,7 +146,7 @@ def main():
                     if line != "DISARMED":
                         print(f"Ignored malformed line: {line}")
             if line == "DISARMED":
-                print("STM32 disarmed. Stopping data collection.")
+                print("STM32 DISARMED. Stopping data collection.")
                 running = False
     except Exception as e:
         print(f"Error: {e}")
