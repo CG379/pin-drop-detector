@@ -146,9 +146,10 @@ def main():
                 if line:
                     try:
                         timestamp, value = line.split(",")
-                        data.append((float(timestamp), int(value)))
+                        data.append((float(timestamp)/10, int(value)))
                         if value == "1":
-                            print("Detection: Vibration detected!")
+                            #print("Detection: Vibration detected!")
+                            print("Timestamp:", float(timestamp)/10, "S", "Vibration detected!")
                     except ValueError:
                         if line != "DISARMED":
                             print(f"Ignored malformed line: {line}")
