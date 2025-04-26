@@ -5,7 +5,6 @@ import threading
 import time
 import keyboard  
 
-# HELLO WORLD
 
 class SerialConnection:
     def __init__(self, baudrate=115200):
@@ -83,7 +82,7 @@ running = True
 def record_manual_input():
     global running
 
-    print("Press and hold SPACEBAR to mark object present (1s resolution). Press ESC to stop.")
+    print("Press and hold SPACEBAR to mark a vibration (1s resolution). Press ESC to stop.")
     last_timestamp = int(time.time())
 
     while running:
@@ -96,7 +95,7 @@ def record_manual_input():
         if current_timestamp != last_timestamp:  # Only log once per second
             if keyboard.is_pressed('space'):
                 manual_data.append((current_timestamp, 1))
-                print(f"[Manual] Object present at {current_timestamp}")
+                print(f"[Manual] vibration at {current_timestamp}")
             else:
                 manual_data.append((current_timestamp, 0))
             last_timestamp = current_timestamp
@@ -111,27 +110,40 @@ def record_manual_input():
 def main():
     global running
     data = []
-    # Read data from the serial port
-    # TODO: get Dennis to explain what this is for
+
+    # Ask if manual input should be enabled
+    enable_manual_input = input("Enable manual input recording (spacebar)? (y/n): ").strip().lower() == 'y'
+    input_thread = None  # fixes error later 
+
+    # Signal STM32 to prepare
     serialInst.write("SX".encode('utf-8'))
     serialInst.flush()
-    print("Ready to start reading data...") 
+    print("Waiting for STM32 to start (press the button)...")
 
+    # Wait for the STM32 to send "START"
+    while True:
+        if serialInst.in_waiting:
+            line = serialInst.readline().decode('utf-8').strip()
+            if line == "START":
+                print("STM32 started. Beginning data collection.")
+                break
 
     # Start manual input thread
-    input_thread = threading.Thread(target=record_manual_input)
-    input_thread.start()
+    if enable_manual_input:
+        input_thread = threading.Thread(target=record_manual_input)
+        input_thread.start()
 
     try:
         while running:
             line = serialInst.readline().decode('utf-8').strip()
             if line:
-                # Assuming the line is in the format "timestamp,value"
-                # e.g., "1234567890,1"
-                timestamp, value = line.split(",")
-                data.append((float(timestamp), int(value)))
-                if value == "1":
-                    print("Detection: Vibration detected!")
+                try:
+                    timestamp, value = line.split(",")
+                    data.append((float(timestamp), int(value)))
+                    if value == "1":
+                        print("Detection: Vibration detected!")
+                except ValueError:
+                    print(f"Ignored malformed line: {line}")
     except KeyboardInterrupt:
         running = False
         print("Interrupted by user.")
@@ -139,19 +151,28 @@ def main():
         print(f"Error: {e}")
     
     running = False
-    input_thread.join()
+
+    # Stop the manual input thread if it was running
+    if input_thread:
+        input_thread.join()
+
     serial_conn.disconnect()
+
     # Save sensor data
     with open("./sensor_data.csv", "w") as f:
         for timestamp, value in data:
             f.write(f"{timestamp},{value}\n")
     print("Sensor data saved")
 
-    # Save True data
-    with open("./true_data.csv", "w") as f:
-        for timestamp, value in manual_data:
-            f.write(f"{timestamp},{value}\n")
-    print("True data saved")
+    # Save manual input data if enabled
+    if enable_manual_input:
+        with open("./true_data.csv", "w") as f:
+            for timestamp, value in manual_data:
+                f.write(f"{timestamp},{value}\n")
+        print("True data (manual input) saved")
+    else:
+        print("Manual input was disabled. No true data saved.")
+
 
 
 if __name__ == "__main__":
