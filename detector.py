@@ -143,12 +143,14 @@ def main():
                     if value == "1":
                         print("Detection: Vibration detected!")
                 except ValueError:
-                    print(f"Ignored malformed line: {line}")
-    except KeyboardInterrupt:
-        running = False
-        print("Interrupted by user.")
+                    if line != "DISARMED":
+                        print(f"Ignored malformed line: {line}")
+            if line == "DISARMED":
+                print("STM32 disarmed. Stopping data collection.")
+                running = False
     except Exception as e:
         print(f"Error: {e}")
+
     
     running = False
 
