@@ -5,6 +5,9 @@ import threading
 import time
 import keyboard  
 
+import matplotlib.pyplot as plt
+import pandas as pd
+
 
 class SerialConnection:
     def __init__(self, baudrate=115200):
@@ -87,8 +90,9 @@ def record_manual_input():
     last_timestamp = int(time.time())
 
     while running:
-        current_timestamp = int(time.time())
-        if keyboard.is_pressed('esc'):
+        line = serialInst.readline().decode('utf-8').strip()
+        current_timestamp = line.split(",")
+        if line == "DISARMED":
             print("ESC pressed. Stopping input...")
             running = False
             break
@@ -101,6 +105,23 @@ def record_manual_input():
                 manual_data.append((current_timestamp, 0))
             last_timestamp = current_timestamp
         time.sleep(0.1)  # Check 10 times a second
+
+# !--------------------- TIME SERIES PLOTTING ---------------------!
+def plot_data(data):
+    """Plot the data using matplotlib."""
+    df = pd.read_csv(data, header=None)
+    df.columns = ['timestamp', 'value']
+    df['timestamp'] = df['timestamp'].astype(float)
+    df['value'] = df['value'].astype(int)
+    df['timestamp'] = pd.to_datetime(df['timestamp'], unit='s')
+    
+    plt.figure(figsize=(10, 5))
+    plt.plot(df['timestamp'], df['value'], marker='o', linestyle='None', markersize=2)
+    plt.title('Sensor Data Over Time')
+    plt.xlabel('Timestamp (HH:MM:SS)')
+    plt.ylabel('Vibration')
+    plt.grid(True)
+    plt.show()
 
 # get data from stm32
 # data has both a timestamp and a value
@@ -183,6 +204,9 @@ def main():
             print(f"True data (manual input) saved to {true_data_filename}")
         else:
             print("Manual input was disabled. No true data saved.")
+
+        # Plot the data
+        plot_data(sensor_data_filename)
 
         # Ask if the user wants to run again
         run_again = input("Run again? (y/n): ").strip().lower() == 'y'
