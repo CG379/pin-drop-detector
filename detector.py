@@ -158,18 +158,21 @@ def main():
 
     serial_conn.disconnect()
 
-    # Save sensor data
-    with open("./sensor_data.csv", "w") as f:
+    # Save sensor data with timestamp in the filename
+    current_time = time.strftime("%H-%M")
+    sensor_data_filename = f"./sensor_data_{current_time}.csv"
+    with open(sensor_data_filename, "w") as f:
         for timestamp, value in data:
             f.write(f"{timestamp},{value}\n")
-    print("Sensor data saved")
+    print(f"Sensor data saved to {sensor_data_filename}")
 
-    # Save manual input data if enabled
+    # Save manual input data if enabled, with timestamp in the filename
     if enable_manual_input:
-        with open("./true_data.csv", "w") as f:
+        true_data_filename = f"./true_data_{current_time}.csv"
+        with open(true_data_filename, "w") as f:
             for timestamp, value in manual_data:
                 f.write(f"{timestamp},{value}\n")
-        print("True data (manual input) saved")
+        print(f"True data (manual input) saved to {true_data_filename}")
     else:
         print("Manual input was disabled. No true data saved.")
 
