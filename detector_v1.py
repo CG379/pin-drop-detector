@@ -116,7 +116,7 @@ def plot_data(data):
     df['timestamp'] = pd.to_datetime(df['timestamp'], unit='s')
     
     plt.figure(figsize=(10, 5))
-    plt.plot(df['timestamp'], df['value'], marker='o', linestyle='None', markersize=2)
+    plt.plot(df['timestamp'], df['value'], marker='o', linestyle='None', markersize=3)
     plt.title('Sensor Data Over Time')
     plt.xlabel('Timestamp (HH:MM:SS)')
     plt.ylabel('Vibration')
@@ -140,8 +140,8 @@ def main():
         running = True
 
         # Ask if manual input should be enabled
-        enable_manual_input = input("Enable manual input recording (spacebar)? (y/n): ").strip().lower() == 'y'
-        input_thread = None  # fixes error later 
+        # enable_manual_input = input("Enable manual input recording (spacebar)? (y/n): ").strip().lower() == 'y'
+        # input_thread = None  # fixes error later 
 
         # Signal STM32 to prepare
         serialInst.write("SX".encode('utf-8'))
@@ -157,9 +157,9 @@ def main():
                     break
 
         # Start manual input thread
-        if enable_manual_input:
-            input_thread = threading.Thread(target=record_manual_input)
-            input_thread.start()
+        # if enable_manual_input:
+        #     input_thread = threading.Thread(target=record_manual_input)
+        #     input_thread.start()
 
         try:
             while running:
@@ -184,8 +184,8 @@ def main():
         running = False
 
         # Stop the manual input thread if it was running
-        if input_thread:
-            input_thread.join()
+        # if input_thread:
+        #     input_thread.join()
 
         # Save sensor data with timestamp in the filename
         current_time = time.strftime("%H-%M-%S")
@@ -196,14 +196,14 @@ def main():
         print(f"Sensor data saved to {sensor_data_filename}")
 
         # Save manual input data if enabled, with timestamp in the filename
-        if enable_manual_input:
-            true_data_filename = f"./true_data_{current_time}.csv"
-            with open(true_data_filename, "w") as f:
-                for timestamp, value in manual_data:
-                    f.write(f"{timestamp},{value}\n")
-            print(f"True data (manual input) saved to {true_data_filename}")
-        else:
-            print("Manual input was disabled. No true data saved.")
+        # if enable_manual_input:
+        #     true_data_filename = f"./true_data_{current_time}.csv"
+        #     with open(true_data_filename, "w") as f:
+        #         for timestamp, value in manual_data:
+        #             f.write(f"{timestamp},{value}\n")
+        #     print(f"True data (manual input) saved to {true_data_filename}")
+        # else:
+        #     print("Manual input was disabled. No true data saved.")
 
         # Plot the data
         plot_data(sensor_data_filename)
