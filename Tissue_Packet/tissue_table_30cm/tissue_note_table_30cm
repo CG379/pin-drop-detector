@@ -1,0 +1,3 @@
+trial 1 30cm = dropped 4 times, detected twice, but other vibration detection are actual errors
+trial 2 30cm = dropped 4 times, none detected
+trial 3 30cm = dropped 4 times, 2 vibrations detected before tissue packet was dropped
